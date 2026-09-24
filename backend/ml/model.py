@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import json
 import xgboost as xgb  # type: ignore
 from sklearn.ensemble import RandomForestClassifier
@@ -15,7 +16,8 @@ FEATURES = [
 ]
 
 def train_and_evaluate():
-    data_path = r"c:\Users\SANA'S PC\Downloads\SKYGUARD-AI-main\SKYGUARD-AI-main\SkyGuard_Ready_Dataset\skyguard_training_demo_dataset.csv"
+    BASE_DIR = Path(__file__).resolve().parent.parent.parent
+    data_path = BASE_DIR / "SkyGuard_Ready_Dataset" / "skyguard_training_demo_dataset.csv"
     
     # 1. Load and Preprocess
     df = load_and_preprocess_data(data_path)
@@ -76,11 +78,14 @@ def train_and_evaluate():
     scenario_df['rf_pred'] = rf_model.predict(scenario_df[FEATURES])
     
     # Save Models and Results
-    os.makedirs(r"c:\Users\SANA'S PC\Downloads\SKYGUARD-AI-main\SKYGUARD-AI-main\backend\models", exist_ok=True)
-    os.makedirs(r"c:\Users\SANA'S PC\Downloads\SKYGUARD-AI-main\SKYGUARD-AI-main\backend\evaluation", exist_ok=True)
+    models_dir = BASE_DIR / "backend" / "models"
+    eval_dir = BASE_DIR / "backend" / "evaluation"
     
-    model_path = r"c:\Users\SANA'S PC\Downloads\SKYGUARD-AI-main\SKYGUARD-AI-main\backend\models\skyguard_xgb.json"
-    xgb_model.save_model(model_path)
+    models_dir.mkdir(parents=True, exist_ok=True)
+    eval_dir.mkdir(parents=True, exist_ok=True)
+    
+    model_path = models_dir / "skyguard_xgb.json"
+    xgb_model.save_model(str(model_path))
     
     metadata = {
         "training_timestamp": str(datetime.datetime.now()),
@@ -89,14 +94,21 @@ def train_and_evaluate():
         "xgboost_historical_accuracy": float(xgb_acc_hist),
         "random_forest_historical_accuracy": float(rf_acc_hist)
     }
-    with open(r"c:\Users\SANA'S PC\Downloads\SKYGUARD-AI-main\SKYGUARD-AI-main\backend\models\metadata.json", "w") as f:
+    with open(models_dir / "metadata.json", "w") as f:
         json.dump(metadata, f, indent=2)
+        
+    preprocessing_stats = {
+        "global_means": extractor.global_means,
+        "global_cov_inv": extractor.global_cov_inv.tolist() if extractor.global_cov_inv is not None else None
+    }
+    with open(models_dir / "skyguard_preprocessing.json", "w") as f:
+        json.dump(preprocessing_stats, f, indent=2)
         
     print(f"XGBoost Historical Acc: {xgb_acc_hist:.4f}, RF Historical Acc: {rf_acc_hist:.4f}")
     
     # Save CSVs for evaluation script
-    historical_df.to_csv(r"c:\Users\SANA'S PC\Downloads\SKYGUARD-AI-main\SKYGUARD-AI-main\backend\evaluation\test_results.csv", index=False)
-    scenario_df.to_csv(r"c:\Users\SANA'S PC\Downloads\SKYGUARD-AI-main\SKYGUARD-AI-main\backend\evaluation\scenario_results.csv", index=False)
+    historical_df.to_csv(eval_dir / "test_results.csv", index=False)
+    scenario_df.to_csv(eval_dir / "scenario_results.csv", index=False)
 
 if __name__ == "__main__":
     train_and_evaluate()

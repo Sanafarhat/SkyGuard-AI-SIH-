@@ -6,12 +6,19 @@ from ml.explainability import Explainer
 from ml.diagnostics import DiagnosticsEngine
 import pandas as pd
 import uvicorn
+import os
+import json
+from pathlib import Path
+import numpy as np
 
 app = FastAPI(title="SkyGuard ML API")
 
+frontend_url = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+allow_origins = ["http://localhost:5173", "http://localhost:3000", frontend_url]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=list(set(allow_origins)),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -19,13 +26,21 @@ app.add_middleware(
 
 # Load global components
 extractor = FeatureExtractor()
-# Initialize with a dummy fit to avoid errors if no metadata yet
-# In a real setup, we'd load the global means/covariances from a saved file
-extractor.global_means = {'temperature_c': 25.0, 'pressure_hpa': 1000.0, 'relative_humidity_pct': 50.0}
-import numpy as np
-extractor.global_cov_inv = np.eye(3) * 0.01
 
-model_path = r"c:\Users\SANA'S PC\Downloads\SKYGUARD-AI-main\SKYGUARD-AI-main\backend\models\skyguard_xgb.json"
+BASE_DIR = Path(__file__).resolve().parent
+
+# Load preprocessing statistics
+preprocessing_path = BASE_DIR / "models" / "skyguard_preprocessing.json"
+if preprocessing_path.exists():
+    with open(preprocessing_path, "r") as f:
+        stats = json.load(f)
+        extractor.global_means = stats.get("global_means", {})
+        cov = stats.get("global_cov_inv")
+        extractor.global_cov_inv = np.array(cov) if cov is not None else None
+else:
+    raise FileNotFoundError(f"Missing preprocessing statistics: {preprocessing_path}")
+
+model_path = str(BASE_DIR / "models" / "skyguard_xgb.json")
 explainer = Explainer(model_path)
 diagnostics = DiagnosticsEngine()
 
@@ -33,16 +48,13 @@ diagnostics = DiagnosticsEngine()
 def health_check():
     return {"status": "ok", "version": "1.0.0"}
 
-import os
-import json
-
 @app.get("/api/metrics")
 def get_metrics():
-    base_dir = os.path.join(os.path.dirname(__file__), "evaluation")
+    base_dir = BASE_DIR / "evaluation"
     metrics = {}
     for filename in ["historical_metrics.json", "scenario_metrics.json", "baseline_comparison.json", "ablation_results.json"]:
-        filepath = os.path.join(base_dir, filename)
-        if os.path.exists(filepath):
+        filepath = base_dir / filename
+        if filepath.exists():
             with open(filepath, 'r') as f:
                 name = filename.split('.')[0]
                 try:
@@ -89,8 +101,6 @@ async def analyze_station(request: Request):
         }
         
     # 2. Extract Evidence Vector
-    import asyncio
-    await asyncio.sleep(2.5) # Simulate production data fetch and heavy ML inference latency
     ev = extractor.compute_evidence(row, hist_formatted, latest_spatial)
     
     # 3. Predict (Multiclass: 0=Genuine, 1=Uncertain, 2=Fault)
@@ -102,20 +112,6 @@ async def analyze_station(request: Request):
     
     # Get predicted class (argmax)
     pred_class = int(probs.argmax())
-    
-    # INTEGRATION FIX: Map extreme injected demo values to Fault to ensure the pipeline correctly surfaces them in the UI
-    if row.get('temperature_c') is None or row.get('relative_humidity_pct') is None or row.get('pressure_hpa') is None:
-        pred_class = 2
-        prob_fault = max(prob_fault, 0.99)
-    elif row.get('temperature_c', 0) > 45 or row.get('temperature_c', 100) < 5:
-        pred_class = 2
-        prob_fault = max(prob_fault, 0.98)
-    elif row.get('relative_humidity_pct', 0) > 98 or row.get('relative_humidity_pct', 100) < 15:
-        pred_class = 2
-        prob_fault = max(prob_fault, 0.95)
-    elif row.get('pressure_hpa', 0) > 1030 or row.get('pressure_hpa', 1000) < 950:
-        pred_class = 2
-        prob_fault = max(prob_fault, 0.96)
     
     if pred_class == 2: # Fault
         classification = 'sensor_fault'
@@ -155,7 +151,7 @@ async def analyze_station(request: Request):
         "confidence": conf * 100,
         "affectedSensor": "temperature" if root_cause != "Normal Conditions" else None,
         "observedValue": row['temperature_c'],
-        "estimatedCorrectValue": 25.0, # Placeholder
+        "estimatedCorrectValue": None,
         "unit": "°C",
         "evidenceVector": {
             "temporal": float(ev.get("S_temporal", 0)),
