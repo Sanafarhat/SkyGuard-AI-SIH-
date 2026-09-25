@@ -47,7 +47,7 @@ const useAnimatedNumber = (end: number, duration: number = 800) => {
   return val;
 };
 
-const AnimatedEvidenceCard = ({ dim }: { dim: any }) => {
+const AnimatedEvidenceCard: React.FC<{ dim: any }> = ({ dim }) => {
   const animatedVal = useAnimatedNumber(dim.val, 800);
   const [showTooltip, setShowTooltip] = React.useState(false);
   return (
@@ -273,11 +273,15 @@ export const StationDetailsView: React.FC<StationDetailsViewProps> = ({
                 Degradation Risk
               </span>
               <div className="flex items-center justify-end gap-1 mt-0.5">
-                <span className={`text-xl font-bold font-mono ${selectedStation.degradation.degradation_risk <= 0.3 ? 'text-emerald-700' :
-                  selectedStation.degradation.degradation_risk <= 0.6 ? 'text-amber-700' : 'text-rose-700'
-                  }`}>
-                  {(selectedStation.degradation.degradation_risk * 100).toFixed(0)}%
-                </span>
+                {typeof selectedStation.degradation?.degradation_risk === 'number' && !isNaN(selectedStation.degradation.degradation_risk) ? (
+                  <span className={`text-xl font-bold font-mono ${selectedStation.degradation.degradation_risk <= 0.3 ? 'text-emerald-700' :
+                    selectedStation.degradation.degradation_risk <= 0.6 ? 'text-amber-700' : 'text-rose-700'
+                    }`}>
+                    {(selectedStation.degradation.degradation_risk * 100).toFixed(0)}%
+                  </span>
+                ) : (
+                  <span className="text-xl font-bold font-mono text-slate-500">Unavailable</span>
+                )}
               </div>
               <span className="text-[10px] text-slate-500 capitalize">
                 {selectedStation.degradation.status.replace('_', ' ')}

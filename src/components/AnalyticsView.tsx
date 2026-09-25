@@ -16,7 +16,8 @@ export const AnalyticsView: React.FC = () => {
     setLoading(true);
     setError(false);
     try {
-      const res = await fetch('http://localhost:8000/api/metrics');
+      const API_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:8000';
+      const res = await fetch(`${API_URL}/api/metrics`);
       if (!res.ok) throw new Error("Failed to fetch metrics");
       const data = await res.json();
       setMetrics(data);
