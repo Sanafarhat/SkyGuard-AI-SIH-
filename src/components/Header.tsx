@@ -24,9 +24,10 @@ import { EditProfileModal } from './EditProfileModal';
 interface HeaderProps {
   onMobileMenuToggle: () => void;
   isMobileMenuOpen: boolean;
+  onReturnToLanding: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen }) => {
+export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen, onReturnToLanding }) => {
   const {
     currentUser,
     logout,
@@ -108,11 +109,20 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenu
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-900 text-lg tracking-tight">SkyGuard AI</span>x
+                    <span className="font-bold text-slate-900 text-lg tracking-tight hidden sm:inline">SkyGuard AI</span>
+                    <span className="font-bold text-slate-900 text-lg tracking-tight sm:hidden">SGAI</span>
                   </div>
-                  <p className="text-xs text-slate-500 hidden sm:block">AWS Data Quality & Anomaly Monitoring</p>
+                  <p className="text-xs text-slate-500 hidden xl:block">AWS Data Quality & Anomaly Monitoring</p>
                 </div>
               </div>
+
+              {/* Back to Home / Landing Page */}
+              <button 
+                onClick={onReturnToLanding}
+                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 ml-2 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition"
+              >
+                Back to Home
+              </button>
             </div>
 
             {/* Center: Search Bar */}

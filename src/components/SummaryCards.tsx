@@ -14,9 +14,9 @@ export const SummaryCards: React.FC<SummaryCardsProps> = ({ onFilterChange, acti
     {
       id: 'all',
       title: 'Monitored AWS Stations',
-      value: `3 Verified AWS Stations`,
-      badge: 'GHCNh Network',
-      subtitle: `${datasetReport.totalRows.toLocaleString()} Validated Observations + Demo Nodes`,
+      value: `${counts.total} Total AWS Nodes`,
+      badge: 'Hybrid Network',
+      subtitle: `${datasetReport.totalRows.toLocaleString()} Validated Observations + Live Demo`,
       icon: Radio,
       borderColor: 'border-slate-200',
       badgeColor: 'bg-slate-100 text-slate-700',

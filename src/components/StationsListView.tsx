@@ -49,7 +49,12 @@ export const StationsListView: React.FC = () => {
       <div className="bg-white border border-slate-200 rounded-lg p-5 shadow-xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">SkyGuard AWS Monitoring Network (6 Nodes)</h1>
+            <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+              <span>SkyGuard AWS Monitoring Network (6 Nodes)</span>
+              <span className="text-[10px] bg-blue-100 text-blue-800 border border-blue-200 px-2 py-0.5 rounded font-bold uppercase tracking-wider w-fit">
+                3 Historical Stations · 3 Demo Stations
+              </span>
+            </h1>
             <p className="text-sm text-slate-500 mt-1">
               Live anomaly detection across historical observation nodes and demonstrator targets.
             </p>
@@ -129,8 +134,12 @@ export const StationsListView: React.FC = () => {
                     <span className="font-mono text-xs font-bold text-slate-900 bg-slate-100 px-1.5 py-0.5 rounded">
                       {station.id}
                     </span>
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      {station.transmissionType}
+                    <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+                      station.source === 'Demo-AWS' || station.source === 'Prototype-Derived'
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'bg-blue-100 text-blue-700'
+                    }`}>
+                      {station.source === 'Demo-AWS' || station.source === 'Prototype-Derived' ? 'Demo Station' : 'Historical Station'}
                     </span>
                   </div>
 

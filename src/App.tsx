@@ -15,8 +15,13 @@ import { ReportsView } from './components/ReportsView';
 import { SettingsView } from './components/SettingsView';
 import { LoginView } from './components/LoginView';
 import { ControlledAnomalyModal } from './components/ControlledAnomalyModal';
+import { LandingPage } from './components/LandingPage';
 
-const MainLayout: React.FC = () => {
+interface MainLayoutProps {
+  onReturnToLanding: () => void;
+}
+
+const MainLayout: React.FC<MainLayoutProps> = ({ onReturnToLanding }) => {
   const { currentTab, isAuthenticated } = useStation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -30,6 +35,7 @@ const MainLayout: React.FC = () => {
       <Header 
         isMobileMenuOpen={isMobileMenuOpen}
         onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        onReturnToLanding={onReturnToLanding}
       />
 
       {/* Main Content Body */}
@@ -60,9 +66,15 @@ const MainLayout: React.FC = () => {
 };
 
 export default function App() {
+  const [currentView, setCurrentView] = useState<'landing' | 'app'>('landing');
+
   return (
     <StationProvider>
-      <MainLayout />
+      {currentView === 'landing' ? (
+        <LandingPage onEnterDashboard={() => setCurrentView('app')} />
+      ) : (
+        <MainLayout onReturnToLanding={() => setCurrentView('landing')} />
+      )}
     </StationProvider>
   );
 }

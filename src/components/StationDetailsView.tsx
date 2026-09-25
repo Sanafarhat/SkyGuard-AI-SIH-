@@ -148,9 +148,9 @@ export const StationDetailsView: React.FC<StationDetailsViewProps> = ({
       confidence: selectedStationAnomaly.confidence,
       evidenceVector: selectedStationAnomaly.evidenceVector,
       shapContributions: selectedStationAnomaly.shapContributions,
-      observedValue: selectedStationAnomaly.observedValue,
       unit: selectedStationAnomaly.unit,
-      affectedSensor: selectedStationAnomaly.parameter
+      affectedSensor: selectedStationAnomaly.parameter,
+      is_injected: selectedStationAnomaly.is_injected
     };
   }
 
@@ -216,6 +216,11 @@ export const StationDetailsView: React.FC<StationDetailsViewProps> = ({
 
             <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
               <span>{selectedStation.name} Weather Station</span>
+              {(selectedStationAnomaly?.is_injected || analysis?.is_injected) && (
+                <span className="text-[10px] bg-purple-100 text-purple-800 border border-purple-200 px-2 py-0.5 rounded font-bold uppercase tracking-wider ml-2">
+                  Controlled Test — Simulated Observation
+                </span>
+              )}
             </h1>
 
             <div className="flex flex-wrap items-center gap-y-1 gap-x-4 text-xs text-slate-500 mt-2">
@@ -328,9 +333,9 @@ export const StationDetailsView: React.FC<StationDetailsViewProps> = ({
             </span>
           </div>
 
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Temperature Data Quality</span>
-            <span className="font-bold text-slate-700">Valid</span>
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Basic Data Validation</span>
+            <span className="font-bold text-slate-700">Passed</span>
           </div>
         </div>
 
@@ -367,9 +372,9 @@ export const StationDetailsView: React.FC<StationDetailsViewProps> = ({
             </span>
           </div>
 
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Humidity Data Quality</span>
-            <span className="font-bold text-slate-700">Valid</span>
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Basic Data Validation</span>
+            <span className="font-bold text-slate-700">Passed</span>
           </div>
         </div>
 
@@ -406,9 +411,9 @@ export const StationDetailsView: React.FC<StationDetailsViewProps> = ({
             </span>
           </div>
 
-          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-            <span>Pressure Data Quality</span>
-            <span className="font-bold text-slate-700">Valid</span>
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
+            <span>Basic Data Validation</span>
+            <span className="font-bold text-slate-700">Passed</span>
           </div>
         </div>
 

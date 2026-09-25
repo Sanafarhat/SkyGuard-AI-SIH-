@@ -16,7 +16,7 @@ export const AnalyticsView: React.FC = () => {
     setLoading(true);
     setError(false);
     try {
-      const API_URL = (import.meta as any).env.VITE_API_URL || 'http://localhost:8000';
+      const API_URL = (import.meta as any).env.VITE_API_URL;
       const res = await fetch(`${API_URL}/api/metrics`);
       if (!res.ok) throw new Error("Failed to fetch metrics");
       const data = await res.json();
@@ -66,10 +66,8 @@ export const AnalyticsView: React.FC = () => {
     { name: 'Fault', "Genuine Weather": cm["Sensor Fault"]["Genuine Weather"], "Uncertain": cm["Sensor Fault"]["Uncertain"], "Sensor Fault": cm["Sensor Fault"]["Sensor Fault"] },
   ];
 
-  const pieData = [
-    { name: 'Correct (Hist)', value: xgbHist.accuracy * 100, color: '#10b981' },
-    { name: 'Error (Hist)', value: (1 - xgbHist.accuracy) * 100, color: '#ef4444' },
-  ];
+  const baselineScenXGB = metrics.baseline_comparison?.Scenario_Evaluation?.XGBoost;
+  const baselineScenRF = metrics.baseline_comparison?.Scenario_Evaluation?.RandomForest_Baseline;
 
   return (
     <div className="space-y-6">
@@ -95,13 +93,13 @@ export const AnalyticsView: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
           <div className="flex justify-between items-center mb-2">
-            <span className="text-xs font-bold text-slate-500 uppercase">Historical Test-Period Accuracy</span>
+            <span className="text-xs font-bold text-slate-500 uppercase">Historical Normal-Weather Recognition Accuracy</span>
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
           </div>
           <div className="text-2xl font-bold font-mono text-slate-800">
             {(xgbHist.accuracy * 100).toFixed(2)}%
           </div>
-          <p className="text-[10px] text-slate-400 mt-1">Clean historical test-period recognition</p>
+          <p className="text-[10px] text-slate-400 mt-1">Clean historical test-period (no labeled faults)</p>
         </div>
 
         <div className="bg-white p-4 rounded-lg border border-slate-200 shadow-xs">
@@ -141,52 +139,81 @@ export const AnalyticsView: React.FC = () => {
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Confusion Matrix (Scenarios) */}
-        <div className="bg-white p-4 border border-slate-200 rounded-lg shadow-xs">
+        <div className="bg-white p-4 border border-slate-200 rounded-lg shadow-xs overflow-x-auto">
           <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
             Scenario Confusion Matrix (Actual vs Predicted)
           </h3>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={cmData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                <XAxis dataKey="name" tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 12, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }} />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
-                <Bar dataKey="Genuine Weather" stackId="a" fill="#10b981" radius={[0, 0, 4, 4]} />
-                <Bar dataKey="Uncertain" stackId="a" fill="#f59e0b" />
-                <Bar dataKey="Sensor Fault" stackId="a" fill="#ef4444" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {cm ? (
+            <table className="w-full text-xs text-left text-slate-600 border-collapse min-w-[400px]">
+              <thead>
+                <tr>
+                  <th className="p-2 border border-slate-200 bg-slate-50">Actual \ Predicted</th>
+                  <th className="p-2 border border-slate-200 bg-slate-50 text-center">Genuine Weather</th>
+                  <th className="p-2 border border-slate-200 bg-slate-50 text-center">Uncertain</th>
+                  <th className="p-2 border border-slate-200 bg-slate-50 text-center">Sensor Fault</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th className="p-2 border border-slate-200 bg-slate-50 font-semibold">Genuine Weather</th>
+                  <td className="p-2 border border-slate-200 text-center font-mono">{cm["Genuine Weather"]["Genuine Weather"]}</td>
+                  <td className="p-2 border border-slate-200 text-center font-mono">{cm["Genuine Weather"]["Uncertain"]}</td>
+                  <td className="p-2 border border-slate-200 text-center font-mono">{cm["Genuine Weather"]["Sensor Fault"]}</td>
+                </tr>
+                <tr>
+                  <th className="p-2 border border-slate-200 bg-slate-50 font-semibold">Uncertain</th>
+                  <td className="p-2 border border-slate-200 text-center font-mono">{cm["Uncertain"]["Genuine Weather"]}</td>
+                  <td className="p-2 border border-slate-200 text-center font-mono">{cm["Uncertain"]["Uncertain"]}</td>
+                  <td className="p-2 border border-slate-200 text-center font-mono">{cm["Uncertain"]["Sensor Fault"]}</td>
+                </tr>
+                <tr>
+                  <th className="p-2 border border-slate-200 bg-slate-50 font-semibold">Sensor Fault</th>
+                  <td className="p-2 border border-slate-200 text-center font-mono">{cm["Sensor Fault"]["Genuine Weather"]}</td>
+                  <td className="p-2 border border-slate-200 text-center font-mono">{cm["Sensor Fault"]["Uncertain"]}</td>
+                  <td className="p-2 border border-slate-200 text-center font-mono">{cm["Sensor Fault"]["Sensor Fault"]}</td>
+                </tr>
+              </tbody>
+            </table>
+          ) : (
+            <div className="text-sm text-slate-500">Confusion matrix unavailable.</div>
+          )}
         </div>
 
-        {/* Historical Accuracy Pie */}
-        <div className="bg-white p-4 border border-slate-200 rounded-lg shadow-xs">
+        {/* Historical Baseline Comparison */}
+        <div className="bg-white p-4 border border-slate-200 rounded-lg shadow-xs overflow-x-auto">
           <h3 className="text-sm font-bold text-slate-800 mb-4 flex items-center gap-2">
-            Historical Baseline Accuracy (Validation Set)
+            Baseline Comparison (Scenario Evaluation)
           </h3>
-          <div className="h-64 flex justify-center">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
-                  paddingAngle={5}
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(value: number) => `${value.toFixed(2)}%`} />
-                <Legend iconType="circle" wrapperStyle={{ fontSize: '12px' }} />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+          {baselineScenXGB && baselineScenRF ? (
+            <div className="space-y-4">
+              <table className="w-full text-xs text-left text-slate-600 border-collapse min-w-[300px]">
+                <thead>
+                  <tr>
+                    <th className="p-2 border border-slate-200 bg-slate-50">Model</th>
+                    <th className="p-2 border border-slate-200 bg-slate-50 text-right">Accuracy</th>
+                    <th className="p-2 border border-slate-200 bg-slate-50 text-right">Macro F1</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td className="p-2 border border-slate-200 font-medium">Random Forest (Baseline)</td>
+                    <td className="p-2 border border-slate-200 text-right font-mono">{(baselineScenRF.accuracy * 100).toFixed(2)}%</td>
+                    <td className="p-2 border border-slate-200 text-right font-mono">{(baselineScenRF.macro_f1 * 100).toFixed(2)}%</td>
+                  </tr>
+                  <tr>
+                    <td className="p-2 border border-slate-200 font-bold text-slate-800">XGBoost</td>
+                    <td className="p-2 border border-slate-200 text-right font-mono font-bold text-slate-800">{(baselineScenXGB.accuracy * 100).toFixed(2)}%</td>
+                    <td className="p-2 border border-slate-200 text-right font-mono font-bold text-slate-800">{(baselineScenXGB.macro_f1 * 100).toFixed(2)}%</td>
+                  </tr>
+                </tbody>
+              </table>
+              <p className="text-[10px] text-slate-400">
+                Evaluation results pulled from baseline_comparison.json.
+              </p>
+            </div>
+          ) : (
+            <div className="text-sm text-slate-500">Baseline comparison unavailable.</div>
+          )}
         </div>
       </div>
     </div>
