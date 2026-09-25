@@ -58,9 +58,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center gap-2">
-              <div className="bg-blue-600 p-1.5 rounded-lg">
-                <CloudRain className="w-5 h-5 text-white" />
-              </div>
+              <img src="/skyguard-logo.png" alt="SkyGuard AI logo" className="h-[42px] w-auto object-contain" />
               <span className="text-xl font-bold tracking-tight text-slate-900">SkyGuard AI</span>
             </div>
             <div className="hidden md:flex gap-6 items-center text-sm font-medium text-slate-600">

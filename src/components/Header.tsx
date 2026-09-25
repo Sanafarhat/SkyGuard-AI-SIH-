@@ -104,9 +104,7 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenu
                 className="flex items-center gap-2.5 cursor-pointer"
                 onClick={() => setCurrentTab('dashboard')}
               >
-                <div className="w-9 h-9 rounded-lg bg-blue-900 text-white flex items-center justify-center font-bold text-lg shadow-xs">
-                  <Radio className="w-5 h-5 text-blue-200" />
-                </div>
+                <img src="/skyguard-logo.png" alt="SkyGuard AI logo" className="h-[42px] w-auto object-contain" />
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-slate-900 text-lg tracking-tight hidden sm:inline">SkyGuard AI</span>
