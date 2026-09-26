@@ -136,8 +136,8 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenu
                     setShowSearchDropdown(true);
                   }}
                   onFocus={() => setShowSearchDropdown(true)}
-                  placeholder="Search station or location (e.g. Vijayawada, AWS-031)..."
-                  className="w-full pl-9 pr-4 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition"
+                  placeholder="Search station or location..."
+                  className="w-full pl-9 pr-8 py-2 text-sm text-slate-900 bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-blue-600 focus:border-transparent transition shadow-sm"
                 />
                 {searchQuery && (
                   <button

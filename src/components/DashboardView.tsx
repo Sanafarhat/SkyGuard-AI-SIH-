@@ -28,9 +28,9 @@ export const DashboardView: React.FC = () => {
         <h3 className="text-sm font-bold text-blue-900 uppercase tracking-wider mb-2">HOW TO USE SKYGUARD</h3>
         <ol className="list-decimal list-inside text-xs text-blue-800 space-y-1">
           <li>Select a station from the map or table below.</li>
-          <li>Select a controlled scenario from the top injector menu.</li>
-          <li>Click <span className="font-semibold uppercase">Run AI Analysis</span>.</li>
-          <li>Review the 11D Evidence.</li>
+          <li>Click <strong className="uppercase">Inject Custom Anomaly</strong> in the station header.</li>
+          <li>Select a controlled scenario and click <strong className="uppercase">Run Simulation</strong>.</li>
+          <li>Review the 11D Evidence Vector.</li>
           <li>Inspect XGBoost + SHAP diagnosis in the details view.</li>
           <li>Follow the recommended action based on the AI diagnosis.</li>
         </ol>

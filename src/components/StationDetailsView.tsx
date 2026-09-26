@@ -267,10 +267,10 @@ export const StationDetailsView: React.FC<StationDetailsViewProps> = ({
             {/* NEW: Inject Custom Anomaly Button */}
             <button
               onClick={() => setIsControlledSimModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-md bg-blue-900 hover:bg-blue-950 text-white text-xs font-bold shadow-xs hover:shadow transition ml-2"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-bold shadow-md hover:shadow-lg transition-all active:scale-95 ml-1 sm:ml-3 shrink-0"
             >
-              <Zap className="w-4 h-4 fill-current text-amber-400" />
-              <span>INJECT CUSTOM ANOMALY</span>
+              <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 fill-amber-400" />
+              <span className="whitespace-nowrap">Inject Custom Anomaly</span>
             </button>
 
             <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 text-right min-w-[130px]">
