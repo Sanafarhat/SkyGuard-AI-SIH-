@@ -117,14 +117,14 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenu
               {/* Back to Home / Landing Page */}
               <button 
                 onClick={onReturnToLanding}
-                className="hidden md:flex items-center gap-1.5 px-3 py-1.5 ml-2 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition"
+                className="hidden md:flex shrink-0 items-center gap-1.5 px-3 py-1.5 ml-2 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-md transition whitespace-nowrap"
               >
                 Back to Home
               </button>
             </div>
 
             {/* Center: Search Bar */}
-            <div className="hidden md:flex items-center flex-1 max-w-xs lg:max-w-sm mx-6 relative">
+            <div className="hidden md:flex items-center flex-1 min-w-[120px] max-w-xs lg:max-w-sm mx-4 relative">
               <div className="relative w-full">
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                 <input
@@ -186,7 +186,7 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenu
                 id="live-stream-toggle-btn"
                 onClick={toggleLiveUpdating}
                 title={isLiveUpdating ? "Live telemetry simulation active" : "Live stream paused"}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition bg-white hover:bg-slate-50 text-slate-700 border-slate-200"
+                className="flex shrink-0 items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium border transition bg-white hover:bg-slate-50 text-slate-700 border-slate-200 whitespace-nowrap"
               >
                 <span className="relative flex h-2 w-2">
                   {isLiveUpdating ? (
@@ -204,7 +204,7 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenu
               </button>
 
               {/* Current IST Time */}
-              <div className="hidden lg:flex items-center gap-1.5 text-xs font-mono text-slate-600 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200">
+              <div className="hidden xl:flex shrink-0 items-center gap-1.5 text-xs font-mono text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-md border border-slate-200 whitespace-nowrap">
                 <Clock className="w-3.5 h-3.5 text-slate-500" />
                 <span>{timeString || 'Loading time...'}</span>
               </div>
@@ -213,7 +213,7 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenu
               <button
                 id="critical-alert-quick-btn"
                 onClick={() => setCurrentTab('anomalies')}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition"
+                className="flex shrink-0 items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition whitespace-nowrap"
                 title="Active Critical Alerts"
               >
                 <Bell className="w-3.5 h-3.5 text-rose-600 animate-pulse" />
@@ -221,7 +221,7 @@ export const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenu
               </button>
 
               {/* User Profile Pill & Trigger */}
-              <div className="relative">
+              <div className="relative shrink-0">
                 <button
                   id="user-profile-menu-btn"
                   onClick={() => setShowProfileMenu(!showProfileMenu)}
