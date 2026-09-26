@@ -27,6 +27,69 @@ import { useStation } from '../context/StationContext';
 import { TrendChart } from './TrendChart';
 import { analyzeStationData } from '../services/anomalyEngine';
 
+const AnalyzingProgress = () => {
+  const [step, setStep] = React.useState(0);
+
+  React.useEffect(() => {
+    // 6 steps, total 2.8s
+    const timers = [
+      setTimeout(() => setStep(1), 300),
+      setTimeout(() => setStep(2), 700),
+      setTimeout(() => setStep(3), 1300),
+      setTimeout(() => setStep(4), 1800),
+      setTimeout(() => setStep(5), 2300),
+      setTimeout(() => setStep(6), 2800),
+    ];
+    return () => timers.forEach(clearTimeout);
+  }, []);
+
+  const steps = [
+    { label: "Observation Received" },
+    { label: "Preprocessing" },
+    { label: "Building 11D Evidence" },
+    { label: "XGBoost Classification" },
+    { label: "SHAP Explainability" },
+    { label: "Final Diagnosis" }
+  ];
+
+  const progressPercent = Math.min(100, (step / 6) * 100);
+
+  return (
+    <div className="p-8 flex flex-col items-center justify-center space-y-6 min-h-[400px]">
+      <h3 className="text-xl font-bold text-slate-800 animate-pulse">ANALYZING...</h3>
+      <p className="text-sm text-slate-500">Processing observation through SkyGuard ML pipeline...</p>
+      
+      <div className="w-full max-w-3xl mt-4">
+        <div className="flex justify-between items-start text-[10px] sm:text-xs font-mono mb-2 px-2">
+          {steps.map((s, idx) => {
+            const isCompleted = step > idx;
+            const isActive = step === idx;
+            return (
+              <div key={idx} className={`flex flex-col items-center gap-1.5 w-16 sm:w-24 text-center transition-all duration-300 ${isCompleted || isActive ? 'text-blue-600 font-bold' : 'text-slate-400'}`}>
+                {isCompleted ? (
+                  <CheckCircle2 className="w-5 h-5 text-blue-500 shrink-0" />
+                ) : isActive ? (
+                  <span className="w-4 h-4 rounded-full bg-blue-100 border-2 border-blue-500 animate-pulse block my-0.5 shrink-0"></span>
+                ) : (
+                  <span className="w-4 h-4 rounded-full border-2 border-slate-300 block my-0.5 shrink-0"></span>
+                )}
+                <span className="leading-tight">{s.label}</span>
+              </div>
+            );
+          })}
+        </div>
+        
+        <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden mt-4">
+          <div 
+            className="h-full rounded-full bg-blue-500 transition-all duration-300 ease-out" 
+            style={{ width: `${progressPercent}%` }} 
+          ></div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const useAnimatedNumber = (end: number, duration: number = 800) => {
   const [val, setVal] = React.useState(0);
   React.useEffect(() => {
@@ -155,34 +218,7 @@ export const StationDetailsView: React.FC<StationDetailsViewProps> = ({
   }
 
   if (isAnalyzing) {
-    return (
-      <div className="p-8 flex flex-col items-center justify-center space-y-6 min-h-[400px]">
-        <h3 className="text-xl font-bold text-slate-800 animate-pulse">ANALYZING...</h3>
-        <p className="text-sm text-slate-500">Processing observation through SkyGuard ML pipeline...</p>
-        <div className="w-full max-w-lg space-y-2 mt-4">
-          <div className="flex items-center justify-between text-xs text-slate-500 font-mono">
-            <span className="text-blue-600 font-bold">✓ Observation received</span>
-            <span className="text-blue-600 font-bold">✓ Preprocessing</span>
-            <span className="text-blue-600 font-bold animate-pulse">● Building 11D Evidence</span>
-            <span>○ XGBoost</span>
-            <span>○ SHAP</span>
-            <span>○ Diagnosis</span>
-          </div>
-          <style>{`
-            @keyframes pipelineProgress {
-              0% { width: 0%; }
-              20% { width: 30%; }
-              50% { width: 60%; }
-              80% { width: 85%; }
-              100% { width: 95%; }
-            }
-          `}</style>
-          <div className="w-full bg-slate-200 rounded-full h-1.5 overflow-hidden">
-            <div className="h-1.5 rounded-full bg-blue-500" style={{ animation: "pipelineProgress 2.5s ease-out forwards" }}></div>
-          </div>
-        </div>
-      </div>
-    );
+    return <AnalyzingProgress />;
   }
 
   const isAnomaly = analysis ? analysis.anomalyDetected : false;

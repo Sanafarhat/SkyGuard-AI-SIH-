@@ -244,9 +244,29 @@ export const StationProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // Neutralize any old results
     setActiveControlledSim(null);
     setSelectedAnomalyId(null);
+    setLastAnalysisResult(null);
 
-    // CALL REAL ML API
-    const analysis = await analyzeStationData(targetStation, stations, newReading, targetStation.history || []);
+    const startTime = Date.now();
+    let analysis;
+    try {
+      // CALL REAL ML API
+      analysis = await analyzeStationData(targetStation, stations, newReading, targetStation.history || []);
+    } catch (err) {
+      console.error("SkyGuard ML pipeline failed:", err);
+      const minDuration = 2800;
+      const elapsed = Date.now() - startTime;
+      if (elapsed < minDuration) {
+        await new Promise(resolve => setTimeout(resolve, minDuration - elapsed));
+      }
+      setIsAnalyzing(false);
+      return;
+    }
+
+    const minDuration = 2800;
+    const elapsed = Date.now() - startTime;
+    if (elapsed < minDuration) {
+      await new Promise(resolve => setTimeout(resolve, minDuration - elapsed));
+    }
     
     setLastAnalysisResult(analysis);
     setIsAnalyzing(false);
